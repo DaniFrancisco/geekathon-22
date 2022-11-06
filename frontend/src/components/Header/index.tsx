@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Autocomplete, TextField, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps, Typography } from '@mui/material';
 import { SearchClient, City } from '../../api/search';
 import { LocalDining, Diamond, Museum, Brush, Attractions, Landscape } from '@mui/icons-material';
-import { Filter } from '../../App';
+import { Filter, FilterType } from '../../App';
 
 const searchClient = new SearchClient();
 
 interface Props {
     setCity: React.Dispatch<City>
     filter: Filter | unknown
-    setFilter: React.Dispatch<Filter>
+    setFilter: React.Dispatch<FilterType>
 }
 
 const FILTERS: Filter[] = [
@@ -25,8 +25,7 @@ export const Header: React.FC<Props> = ({ setCity, filter, setFilter }) => {
     const { data } = searchClient.getCities();
 
     const onChange: ToggleButtonGroupProps["onChange"] = (_, value) => {
-        //FILTERS.find(({ label }) => label === value)
-        //setFilter(FILTERS.find(({ label }) => label === value))
+        setFilter(value)
     }
 
     return (
@@ -42,8 +41,8 @@ export const Header: React.FC<Props> = ({ setCity, filter, setFilter }) => {
             />
             <ToggleButtonGroup value={filter} onChange={onChange} sx={{ paddingTop: "8px" }} exclusive size="small">
                 {FILTERS.map(
-                    ({ component, label }) =>
-                        <ToggleButton sx={{ display: "block" }} value={label} key={label}>
+                    ({ component, slug, label }) =>
+                        <ToggleButton sx={{ display: "block" }} value={slug} key={slug}>
                             {component}
                             <Typography fontSize={8} >{label}</Typography>
                         </ToggleButton>

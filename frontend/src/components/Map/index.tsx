@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { City, Marker, SearchClient } from '../../api/search';
-import { Filter } from '../../App';
+import { Filter, FilterType } from '../../App';
 
 const loader = new Loader({
     apiKey: "",
@@ -26,7 +26,7 @@ interface Props {
     setSelectedItinerary: React.Dispatch<Marker | undefined>
     city?: City
     marker?: Marker
-    filter?: Filter
+    filter?: FilterType
 }
 
 const searchClient = new SearchClient();
@@ -49,6 +49,7 @@ export const Map: React.FC<Props> = ({ setSelectedItinerary, city, filter }) => 
         map.addListener("center_changed", () => setSelectedItinerary(undefined))
     }, [])
 
+
     const geoSuccess: PositionCallback = ({ coords: { latitude, longitude } }) => setMyLocation({ lat: latitude, lng: longitude })
 
     useEffect(() => {
@@ -60,7 +61,7 @@ export const Map: React.FC<Props> = ({ setSelectedItinerary, city, filter }) => 
             return;
         }
 
-        const { data } = searchClient.getItinerariesForCity(filter?.slug);
+        const { data } = searchClient.getItinerariesForCity(filter);
 
         map?.setZoom(14);
         map?.panTo(city.position);

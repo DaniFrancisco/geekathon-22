@@ -16,7 +16,7 @@ export interface Filter {
 function App() {
   const [selectedItinerary, setSelectedItinerary] = useState<Marker | undefined>();
   const [city, setCity] = useState<City | undefined>();
-  const [filter, setFilter] = useState<Filter | undefined>();
+  const [filter, setFilter] = useState<FilterType | undefined>();
 
   return (
     <div className="h-full">
