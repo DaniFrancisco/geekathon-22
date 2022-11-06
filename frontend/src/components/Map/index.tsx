@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { City, Marker, SearchClient } from '../../api/search';
+import { Filter } from '../../App';
 
 const loader = new Loader({
-    //apiKey: "AIzaSyCjFXtbsXjaKwGKyyMulawbyc0g9LCpw_k",
     apiKey: "",
     version: "weekly",
     libraries: ["places"]
@@ -26,14 +26,16 @@ interface Props {
     setSelectedItinerary: React.Dispatch<Marker | undefined>
     city?: City
     marker?: Marker
+    filter?: Filter
 }
 
 const searchClient = new SearchClient();
 
-export const Map: React.FC<Props> = ({ setSelectedItinerary, city }) => {
+export const Map: React.FC<Props> = ({ setSelectedItinerary, city, filter }) => {
     const [myLocation, setMyLocation] = useState<Location | undefined>();
     const [map, setMap] = useState<google.maps.Map | undefined>()
     const [googleInstance, setGoogleInstance] = useState<typeof google | undefined>();
+    const [markers, setMarkers] = useState<google.maps.Marker[]>([])
 
     const loadMap = useCallback(async () => {
         const google = await loader.load();
@@ -58,12 +60,15 @@ export const Map: React.FC<Props> = ({ setSelectedItinerary, city }) => {
             return;
         }
 
-        const { data } = searchClient.getItinerariesForCity("");
+        const { data } = searchClient.getItinerariesForCity(filter?.slug);
 
         map?.setZoom(14);
         map?.panTo(city.position);
 
-        data.forEach((itinerary) => {
+        markers.forEach((pin) => pin.setMap(null));
+        setMarkers([]);
+
+        const pins = data.map((itinerary) => {
             const { position } = itinerary;
             const pin = new googleInstance.maps.Marker({
                 position,
@@ -73,9 +78,13 @@ export const Map: React.FC<Props> = ({ setSelectedItinerary, city }) => {
             pin.addListener("click", () => {
                 setSelectedItinerary(itinerary);
             });
+
+            return pin;
         })
 
-    }, [city])
+        setMarkers(pins);
+
+    }, [city, filter])
 
     useEffect(() => {
         loadMap();
